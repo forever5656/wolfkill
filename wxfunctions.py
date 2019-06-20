@@ -26,11 +26,11 @@ class wx:
         userDict=[]
         for userlist in people:
             userDict.append({"UserName":userlist})
-            gctmp=itchat.create_chatroom(userDict, '狼人杀Beta')
-            groupchatmain=gctmp['ChatRoomName']
-            itchat.send_msg('欢迎加入狼人杀',toUserName=groupchatmain)
-            time.sleep(0.1)
-            itchat.send_msg('请稍后，正在获取昵称...',toUserName=groupchatmain)
+        gctmp=itchat.create_chatroom(userDict, '村庄')
+        groupchatmain=gctmp['ChatRoomName']
+        itchat.send_msg('欢迎加入狼人杀',toUserName=groupchatmain)
+        time.sleep(0.1)
+        itchat.send_msg('请稍后，正在获取昵称...',toUserName=groupchatmain)
     @staticmethod
     def langrengroup(people=None):
         global groupchatlangren
@@ -40,9 +40,12 @@ class wx:
         userDict=[]
         for userlist in people:
             userDict.append({"UserName":userlist})
-            gctmp=itchat.create_chatroom(userDict, '狼人群-狼人杀Beta')
+        gctmp=itchat.create_chatroom(userDict, '狼人群')
+        if(gctmp['ChatRoomName']==''):
+            groupchatlangren=people[0]
+        else:
             groupchatlangren=gctmp['ChatRoomName']
-            itchat.send_msg('你们的身份是狼人,这里是给你们讨论的场所\n讨论结束后请其中一个人向服务号发送编号.',toUserName=groupchatmain)
+        itchat.send_msg('你们的身份是狼人,这里是给你们讨论的场所\n讨论结束后请其中一个人向服务号发送编号.',toUserName=groupchatlangren)
     @staticmethod
     def send2group(msg):
         itchat.send_msg(msg,toUserName=groupchatmain)

@@ -16,7 +16,6 @@ class GetError:
 class Langren:
     '狼人'
     global Langrenx
-    number = 0
 
     @staticmethod
     def delete(name):
@@ -26,14 +25,14 @@ class Langren:
             return True
         else:
             GetError.Error = '删除时出错:名称不存在'
-            GetError.IDto = GetError.IDto+1
+            GetError.IDto = GetError.IDto + 1
             return False
 
     @staticmethod
     def new(name):
         if name in Langrenx:
             GetError.Error = '创建时出错:名称已存在'
-            GetError.IDto = GetError.IDto+1
+            GetError.IDto = GetError.IDto + 1
             return False
         else:
             Langrenx.append(name)
@@ -61,7 +60,6 @@ class Langren:
 class Nvwu:
     '女巫'
     global Nvwux
-    number = 0
 
     @staticmethod
     def delete(name):
@@ -71,7 +69,7 @@ class Nvwu:
             return True
         else:
             GetError.Error = '删除时出错:名称不存在'
-            GetError.IDto = GetError.IDto+1
+            GetError.IDto = GetError.IDto + 1
             return False
 
     @staticmethod
@@ -164,6 +162,7 @@ class Yuyanjia:
 #                return False
 class Pingmin:
     '平民,无权限'
+
     @staticmethod
     def delete(name):
         if name in Pingminx:

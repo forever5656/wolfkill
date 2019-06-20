@@ -14,19 +14,20 @@ from wxfunctions import *
 from collections import Counter
 import random
 import time
+import _thread
 
 #创建变量
 Waiting = []
 #设置参数
-Langren.number = 2
-Nvwu.number = 1
-Yuyanjia.number = 1
-# Shouwei.number = 1
-Pingmin.number = 3
+Langren.number =  1
+Nvwu.number = 0
+Yuyanjia.number = 0
+Pingmin.number = 1
 Game = []
 Table = {}
 Result = []
 Done = []
+Killed = ''
 Alive = True
 Dead = False
 #临时参数
@@ -49,9 +50,9 @@ def startgame():
         temp.append('预言家')
     for x in range(Pingmin.number):
         temp.append('平民')
-    #for x in range(Shouwei.number):
-    #    temp.append('守卫')
+    print(temp)
     temp = random.choices(temp, k=len(temp))
+    print (temp)
     for y in range(len(Game)):
         if temp[y] == '狼人':
             Langren.new(Game[y])
@@ -65,10 +66,6 @@ def startgame():
             Yuyanjia.new(Game[y])
             print(Game[y] + '->预言家')
             wx.sendmsg('您的身份是预言家', Game[y])
-        #elif temp[y]=='守卫':
-        #    Shouwei.new(Game[y])
-        #   print(Game[y] + '->守卫')
-        #    wx.sendmsg('您的身份是守卫', Game[y])
         elif temp[y] == '平民':
             Pingmin.new(Game[y])
             print(Game[y] + '->平民')
@@ -84,6 +81,7 @@ def startgame():
     for x in range(len(Langrenx)):
         LangrenGroupup.append(Name2Wx[Langrenx[x]])
     wx.langrengroup(LangrenGroupup)
+    print("hhh1")
     mainloop()
 def Calculation(x = None):
     if x == 'Langren':
@@ -148,30 +146,11 @@ def mainloop():
     global dengdailangren
     global dengdainvwu
     global dengdaiyuyanjia
+    global Killed
     Table = {}
     wx.send2group('天黑请闭眼!')
     time.sleep(0.5)
-#    wx.send2group('守卫请睁眼')
-#    time.sleep(1)
-#    wx.send2group('守卫请选择对象')
-#    for zz in Shouweix:
-#        wx.sendmsg('请稍后...',zz)
-#    y=0
-#    TableStr='请选择对象:'
-#    for x in Game:
-#        if All.alive(x)==Alive:
-#            y=y+1
-#            Table[y]=x
-#            TableStr=TableStr+'\n'+str(y)+':'+x
-#    for zz in Shouweix:
-#        wx.sendmsg(TableStr,zz)
-    #选择提示
-    #操作完毕等待输入
-#    dengdaishouwei=True
-#    while dengdaishouwei:
-#        time.sleep(1)
     wx.send2group('狼人请睁眼')
-#    wx.send2langren('请稍后...')
     y = 0
     TableStr = '请选择对象:'
     for x in Game:
@@ -190,6 +169,11 @@ def mainloop():
         wx.sendmsg('刚刚 ' + Killed + ' 死了,您可以选择救[1]或者不救[2]', zz)
     dengdainvwu = True
     while dengdainvwu:
+        if len(Nvwux)==0:
+            x=list(range(10))
+            x.pop(0)
+            time.sleep(random.choice(x))
+            dengdainvwu = False
         time.sleep(1)
     wx.send2group('女巫请闭眼,预言家请睁眼')
     #选择提示
@@ -206,6 +190,11 @@ def mainloop():
         wx.sendmsg(TableStr,zz)
     dengdaiyuyanjia = True
     while dengdaiyuyanjia:
+        if len(Yuyanjiax)==0:
+            x=list(range(10))
+            x.pop(0)
+            time.sleep(random.choice(x))
+            dengdainvwu = False
         time.sleep(1)
     if Killed=='':
         Killed='没有人'
@@ -220,7 +209,7 @@ def mainloop():
         #结束统计
         Calculation(Gameover())
 #等待消息(Itchat部分)
-@itchat.msg_register('asd')
+@itchat.msg_register(TEXT)
 def recv(msg):
     global dengdailangren
     global dengdainvwu
@@ -230,6 +219,8 @@ def recv(msg):
     global dengdaitoupiao
     global Result
     global Done
+    global Killed
+    print("Call Recv")
     if dengdaitoupiao == True:
         if msg['User']['NickName'] in Game:
             if All.alive(msg['User']['NickName'])==True and msg['User']['NickName'] not in Done:
@@ -240,6 +231,7 @@ def recv(msg):
                     wx.sendmsg('选项不存在,请重新选择',msg['User']['NickName'])
             else:
                 wx.sendmsg('您已死或已参与投票,无法投票',msg['User']['NickName'])
+        dengdaitoupiao = False
     if dengdailangren == True:
         StillAlive = False
         for x in Langrenx:
@@ -257,9 +249,6 @@ def recv(msg):
                         print('操作成功')
                         wx.send2langren('成功杀死' + Table[msg['Content']])
                         Killed = Table[msg['Content']]
-                    elif GetError.Error=='守护':
-                        wx.send2langren('成功杀死'+Table[msg['Content']])
-                        print('失败:'+GetError.Error)
                     else:
                         print('操作失败:'+GetError.Error)
                         wx.send2langren('无法杀死'+Table[msg['Content']]+':目标玩家已死')
@@ -308,26 +297,6 @@ def recv(msg):
         #print('### 预言家')
         #判断 预言家是否活着 如果活着就选 挂了就延迟随机
         dengdaiyuyanjia = False
-#    if dengdaishouwei==True:
-#        #print('### 守卫')
-#        #判断 守卫是否活着 如果活着就选 挂了就延迟随机
-#        StillAlive=False
-#        for x in Shouweix:
-#            if All.alive(x):
-#                StillAlive=True
-#        if not StillAlive:
-#            x=list(range(10))
-#            x.pop(0)
-#            time.sleep(random.choice(x))
-#            dengdaishouwei=False
-#        if msg['User']['NickName'] in Game:
-#            if msg['User']['NickName'] in Shouweix and All.alive(msg['User']['NickName'])==True:
-#                if msg['Content'] in Table:
-#                    if Shouwei.protect(Table[msg['Content']])==True:
-#                        wx.sendmsg('守卫成功！',msg['User']['NickName'])
-#                    else:
-#                        wx.sendmsg('无法守卫:不能连续守卫一个人',msg['User']['NickName'])
-#        dengdaishouwei=False
     if msg['Content'] == '开始游戏':
         #开始游戏
         if msg['User']['NickName'] in Waiting or msg['User']['NickName'] in Game:
@@ -344,6 +313,7 @@ def recv(msg):
                 wx.group(Waiting)
                 Game=Waiting
                 Waiting=[]
-                startgame()
+                print(Game)
+                _thread.start_new_thread(startgame,())
         print(Waiting)
 itchat.run()
